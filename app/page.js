@@ -78,11 +78,9 @@ export default function Home() {
 
       {/* --- HERO SECTION --- */}
       <section className="relative pt-32 pb-40 px-6 bg-[#FFDE59] overflow-hidden rounded-b-[3rem] md:rounded-b-[5rem] z-10 shadow-sm">
-        {/* Subtle Impact Background Image */}
         <div className="absolute inset-0 z-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=1600&q=80"
+            src="hero.avif"
             alt="Philanthropy"
             className="w-full h-full object-cover opacity-15 mix-blend-multiply"
           />
@@ -256,7 +254,7 @@ export default function Home() {
           <div className="flex-1 w-full relative">
             <div className="absolute -inset-4 bg-[#FFDE59] rounded-[3rem] transform rotate-3 opacity-20 hidden md:block"></div>
             <img
-              src="https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?auto=format&fit=crop&w=800&q=80"
+              src="community.avif"
               alt="Community Impact"
               className="w-full h-auto aspect-square md:aspect-4/3 object-cover rounded-4xl shadow-2xl relative z-10"
             />
