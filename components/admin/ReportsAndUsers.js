@@ -16,28 +16,66 @@ export default function ReportsAndUsers() {
     const [isUpdating, setIsUpdating] = useState(false);
 
     const fetchData = async () => {
-        const { data: profilesData } = await supabase.from('profiles').select(`id, full_name, email:id, charity_percentage, subscriptions ( status, plan_type ), charities ( name )`).order('created_at', { ascending: false });
-        if (profilesData) {
-            setUsers(profilesData);
-            setStats(prev => ({ ...prev, totalUsers: profilesData.length }));
-            let totalCharity = 0;
-            profilesData.forEach(user => {
-                if (user.subscriptions?.status === 'active') {
-                    totalCharity += (user.subscriptions.plan_type === 'yearly' ? 10000 : 1000) * (user.charity_percentage / 100);
-                }
-            });
-            setStats(prev => ({ ...prev, charityTotal: totalCharity }));
-        }
+        try {
+            // Fetch Profiles
+            const { data: profilesData, error: profileError } = await supabase
+                .from('profiles')
+                .select(`id, full_name, charity_percentage, subscriptions ( status, plan_type ), charities ( name )`)
+                .order('created_at', { ascending: false });
 
-        const { data: drawsData } = await supabase.from('draws').select('total_prize_pool');
-        if (drawsData) {
-            setStats(prev => ({
-                ...prev,
-                totalPrizePool: drawsData.reduce((sum, draw) => sum + Number(draw.total_prize_pool), 0),
-                drawCount: drawsData.length
-            }));
+            if (profileError) {
+                console.error("Error fetching profiles:", profileError);
+            }
+
+            if (profilesData) {
+                // Map over the data to safely handle arrays and format the user object
+                const safeUsers = profilesData.map(user => {
+                    // Supabase often returns joined tables as arrays. We grab the first one if it is.
+                    const sub = Array.isArray(user.subscriptions) ? user.subscriptions[0] : user.subscriptions;
+                    const char = Array.isArray(user.charities) ? user.charities[0] : user.charities;
+
+                    return {
+                        ...user,
+                        safeSubscription: sub,
+                        safeCharity: char
+                    };
+                });
+
+                setUsers(safeUsers);
+                setStats(prev => ({ ...prev, totalUsers: safeUsers.length }));
+
+                // Calculate Charity
+                let totalCharity = 0;
+                safeUsers.forEach(user => {
+                    if (user.safeSubscription?.status === 'active') {
+                        totalCharity += (user.safeSubscription.plan_type === 'yearly' ? 10000 : 1000) * (user.charity_percentage / 100);
+                    }
+                });
+                setStats(prev => ({ ...prev, charityTotal: totalCharity }));
+            }
+
+            // Fetch Draws
+            const { data: drawsData, error: drawsError } = await supabase
+                .from('draws')
+                .select('total_prize_pool');
+
+            if (drawsError) {
+                console.error("Error fetching draws:", drawsError);
+            }
+
+            if (drawsData) {
+                setStats(prev => ({
+                    ...prev,
+                    totalPrizePool: drawsData.reduce((sum, draw) => sum + Number(draw.total_prize_pool || 0), 0),
+                    drawCount: drawsData.length
+                }));
+            }
+
+        } catch (err) {
+            console.error("Critical crash in fetchData:", err);
+        } finally {
+            setLoading(false);
         }
-        setLoading(false);
     };
 
     useEffect(() => { fetchData(); }, []);
@@ -64,7 +102,7 @@ export default function ReportsAndUsers() {
         }
     };
 
-    if (loading) return <Loading message='Crunching numbers...'/>
+    if (loading) return <Loading message='Crunching numbers...' />
 
     return (
         <div className="space-y-8 md:space-y-10">
@@ -186,9 +224,9 @@ export default function ReportsAndUsers() {
                                                 <div key={score.id} className="flex flex-wrap gap-2 sm:gap-3 items-center bg-white p-2.5 sm:p-3 rounded-lg sm:rounded-xl border border-slate-100 shadow-sm justify-between sm:justify-start">
                                                     <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                                                         <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-slate-100 text-slate-500 text-[10px] sm:text-xs flex items-center justify-center font-bold">{idx + 1}</span>
-                                                        <span className="text-[10px] sm:text-sm text-slate-500 w-16 sm:w-24 font-medium">{new Date(score.played_date).toLocaleDateString(undefined, {month: 'short', day: 'numeric'})}</span>
+                                                        <span className="text-[10px] sm:text-sm text-slate-500 w-16 sm:w-24 font-medium">{new Date(score.played_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}</span>
                                                     </div>
-                                                    
+
                                                     <div className="flex items-center gap-2">
                                                         <input type="number" defaultValue={score.score} id={`score-${score.id}`} className="w-14 sm:w-20 bg-slate-50 border border-slate-200 rounded-md sm:rounded-lg px-2 py-1.5 sm:px-3 sm:py-2 text-sm sm:text-base text-slate-900 font-bold focus:bg-white outline-none" />
                                                         <button onClick={() => handleUpdate('update_score', { scoreId: score.id, score: document.getElementById(`score-${score.id}`).value })} className="text-[10px] sm:text-xs bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-bold px-3 py-1.5 sm:px-4 sm:py-2 rounded-md sm:rounded-lg transition-colors whitespace-nowrap">Save</button>
