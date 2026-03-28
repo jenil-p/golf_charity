@@ -26,6 +26,7 @@ export const AuthProvider = ({ children }) => {
                 setIsAdminLoading(false); 
             } else {
                 setIsAdmin(false);
+                setIsAdminLoading(false);
             }
 
             setIsAuthLoading(false);
@@ -35,7 +36,7 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     return (
-        <AuthContext.Provider value={{ session, isAdmin, isAuthLoading }}>
+        <AuthContext.Provider value={{ session, isAdmin, isAuthLoading, isAdminLoading }}>
             {children}
         </AuthContext.Provider>
     );
