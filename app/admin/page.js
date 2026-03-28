@@ -15,7 +15,7 @@ import CharityManagement from '../../components/admin/CharityManagement';
 import Loading from '@/components/ui/Loading';
 
 export default function AdminDashboard() {
-  const { session, isAuthLoading } = useAuth();
+  // const { session, isAuthLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -23,46 +23,28 @@ export default function AdminDashboard() {
   const menuRef = useRef(null); // Ref for click-outside detection
   const router = useRouter();
 
+  const { session, isAdmin: isAdminFromContext, isAuthLoading } = useAuth();
+
   useEffect(() => {
-    async function checkAdmin() {
-      // Wait for AuthContext to finish checking cookies/local storage
-      if (isAuthLoading) return;
+    if (isAuthLoading) return;
 
-      // If Auth is done but no session, kick to login
-      if (!session) {
-        router.push('/login');
-        return;
-      }
-
-      try {
-        // Fetch role
-        const { data: profile, error } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .single();
-
-        if (error) throw error;
-
-        if (profile?.role !== 'admin') {
-          alert("Access Denied: Admins Only");
-          router.push('/dashboard');
-          return;
-        }
-
-        // If they pass all checks, grant access
-        setIsAdmin(true);
-
-      } catch (error) {
-        console.error("Admin verification failed:", error);
-        router.push('/dashboard');
-      } finally {
-        setLoading(false);
-      }
+    if (!session) {
+      router.push('/login');
+      setLoading(false);
+      return;
     }
 
-    checkAdmin();
-  }, [router, session, isAuthLoading]);
+    if (!isAdminFromContext) {
+      alert("Access Denied: Admins Only");
+      router.push('/dashboard');
+      setLoading(false);
+      return;
+    }
+
+    setIsAdmin(true);
+    setLoading(false);
+
+  }, [session, isAuthLoading, isAdminFromContext, router]);
 
   // Handle clicking outside the mobile menu to close it
   useEffect(() => {
@@ -158,7 +140,7 @@ export default function AdminDashboard() {
         </div>
 
         {/* Dynamic Content */}
-        <div className="animate-in fade-in duration-500 bg-white md:bg-transparent rounded-3xl md:rounded-none shadow-sm md:shadow-none p-4 md:p-0 border border-slate-100 md:border-none">
+        <div className="animate-in fade-in duration-500 bg-white md:bg-transparent rounded-3xl md:rounded-none shadow-sm md:shadow-none md:p-0 border border-slate-100 md:border-none">
           {activeTab === 'overview' && <ReportsAndUsers />}
           {activeTab === 'draws' && <DrawEngine />}
           {activeTab === 'verification' && <WinnerVerification />}

@@ -33,7 +33,12 @@ export default function Dashboard() {
 
     const fetchDashboardData = async () => {
         if (isAuthLoading) return;
-        if (!session) return router.push('/login');
+        
+        if (!session) {
+            router.push('/login');
+            setLoading(false);
+            return;
+        }
 
         const { data: profileData } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
 

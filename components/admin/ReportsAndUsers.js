@@ -30,7 +30,6 @@ export default function ReportsAndUsers() {
             if (profilesData) {
                 // Map over the data to safely handle arrays and format the user object
                 const safeUsers = profilesData.map(user => {
-                    // Supabase often returns joined tables as arrays. We grab the first one if it is.
                     const sub = Array.isArray(user.subscriptions) ? user.subscriptions[0] : user.subscriptions;
                     const char = Array.isArray(user.charities) ? user.charities[0] : user.charities;
 

@@ -183,54 +183,59 @@ export default function CharityManagement() {
         }
     };
 
-    if (loading) return <Loading message='Loading directory...'/>;
+    if (loading) return <Loading message='Loading directory...' />;
 
 
     return (
         <div className="space-y-10">
-            {/* ADD / EDIT FORM */}
-            <div className="bg-white p-6 md:p-10 rounded-3xl border border-slate-100 shadow-sm">
-                <div className="mb-8 border-b border-slate-100 pb-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">
+            <div className="bg-white p-5 sm:p-6 md:p-10 rounded-2xl sm:rounded-3xl border border-slate-100 shadow-sm">
+                <div className="mb-6 sm:mb-8 border-b border-slate-100 pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                    <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
                         {editingId ? 'Edit Charity Details' : 'Add New Charity'}
                     </h2>
                     {editingId && (
-                        <span className="bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider self-start md:self-auto flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Editing Mode
+                        <span className="bg-amber-100 text-amber-700 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider self-start sm:self-auto flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-amber-500 animate-pulse"></span> Editing Mode
                         </span>
                     )}
                 </div>
 
-                <form onSubmit={handleSubmit} className="space-y-8 max-w-4xl">
+                <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8 max-w-4xl">
                     {/* Basic Info */}
-                    <div className="space-y-6 bg-slate-50/50 p-6 rounded-2xl border border-slate-100">
-                        <h3 className="text-sm font-black uppercase tracking-widest text-slate-400">Basic Information</h3>
+                    <div className="space-y-4 sm:space-y-6 bg-slate-50/50 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-slate-100">
+                        <h3 className="text-xs sm:text-sm font-black uppercase tracking-widest text-slate-400">Basic Information</h3>
                         <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Charity Name</label>
-                            <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="e.g. Green Earth Alliance" />
+                            <label className="block text-[10px] sm:text-xs font-bold text-slate-700 mb-1.5 sm:mb-2 uppercase tracking-wide">Charity Name</label>
+                            <input type="text" required value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} className="w-full bg-white border border-slate-200 rounded-lg sm:rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base text-slate-900 font-bold focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all outline-none" placeholder="e.g. Green Earth Alliance" />
                         </div>
                         <div>
-                            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">Mission & Description</label>
-                            <textarea required value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-slate-900 font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all h-32 resize-none outline-none" placeholder="Describe the impact and mission..." />
+                            <label className="block text-[10px] sm:text-xs font-bold text-slate-700 mb-1.5 sm:mb-2 uppercase tracking-wide">Mission & Description</label>
+                            <textarea required value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-white border border-slate-200 rounded-lg sm:rounded-xl px-3 py-2.5 sm:px-4 sm:py-3 text-sm sm:text-base text-slate-900 font-medium focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all h-24 sm:h-32 resize-none outline-none" placeholder="Describe the impact and mission..." />
                         </div>
                     </div>
 
-                    {/* Image Management (UPGRADED) */}
-                    <div className="space-y-6 bg-emerald-50/30 p-6 rounded-2xl border border-emerald-100/50">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-sm font-black uppercase tracking-widest text-emerald-800 flex items-center gap-2"><ImageIcon className="w-4 h-4" /> Media Gallery</h3>
-                            <button type="button" onClick={addImageField} className="text-emerald-600 hover:text-emerald-700 text-xs font-bold flex items-center gap-1 uppercase tracking-wider bg-emerald-100 px-3 py-1.5 rounded-lg transition-colors"><Plus className="w-3 h-3" /> Add Slot</button>
+                    {/* Image Management */}
+                    <div className="space-y-4 sm:space-y-6 bg-emerald-50/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-emerald-100/50">
+
+                        {/* Changed: Stacked on mobile, side-by-side on sm+ screens */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 pb-2 sm:pb-0 border-b sm:border-0 border-emerald-100">
+                            <h3 className="text-sm font-black uppercase tracking-widest text-emerald-800 flex items-center gap-2">
+                                <ImageIcon className="w-4 h-4" /> Media Gallery
+                            </h3>
+                            <button type="button" onClick={addImageField} className="w-full sm:w-auto justify-center text-emerald-700 hover:text-emerald-800 text-xs font-bold flex items-center gap-1.5 uppercase tracking-wider bg-emerald-100 hover:bg-emerald-200 px-4 py-2 rounded-lg transition-colors shadow-sm">
+                                <Plus className="w-3.5 h-3.5" /> Add New Slot
+                            </button>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {images.map((img, index) => (
-                                <div key={index} className={`relative flex flex-col items-center justify-center bg-white p-2 rounded-2xl border-2 transition-all overflow-hidden ${img.is_primary ? 'border-emerald-500 shadow-md' : 'border-slate-200 border-dashed hover:border-emerald-300'}`}>
+                                <div key={index} className={`relative flex flex-col items-center justify-center bg-white p-2 rounded-xl sm:rounded-2xl border-2 transition-all overflow-hidden ${img.is_primary ? 'border-emerald-500 shadow-md' : 'border-slate-200 border-dashed hover:border-emerald-300'}`}>
 
                                     {/* Primary Badge / Action */}
                                     <button
                                         type="button"
                                         onClick={() => setPrimaryImage(index)}
-                                        className={`absolute top-3 left-3 z-10 flex items-center justify-center px-2 py-1 rounded-md text-[10px] font-black uppercase tracking-wider transition-all shadow-sm ${img.is_primary ? 'bg-emerald-500 text-white' : 'bg-white/80 text-slate-500 hover:bg-emerald-100 hover:text-emerald-700 backdrop-blur-sm'}`}
+                                        className={`absolute top-2 sm:top-3 left-2 sm:left-3 z-10 flex items-center justify-center px-2 py-1 rounded text-[9px] sm:text-[10px] font-black uppercase tracking-wider transition-all shadow-sm ${img.is_primary ? 'bg-emerald-500 text-white' : 'bg-white/80 text-slate-500 hover:bg-emerald-100 hover:text-emerald-700 backdrop-blur-sm'}`}
                                         title="Set as Primary Thumbnail"
                                     >
                                         <Check className="w-3 h-3 mr-1" /> {img.is_primary ? 'Primary' : 'Make Primary'}
@@ -238,26 +243,25 @@ export default function CharityManagement() {
 
                                     {/* Remove Action */}
                                     {images.length > 1 && (
-                                        <button type="button" onClick={() => removeImageField(index)} className="absolute top-3 right-3 z-10 bg-white/80 text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md backdrop-blur-sm transition-colors shadow-sm">
-                                            <Trash2 className="w-4 h-4" />
+                                        <button type="button" onClick={() => removeImageField(index)} className="absolute top-2 sm:top-3 right-2 sm:right-3 z-10 bg-white/90 text-slate-400 hover:text-red-500 hover:bg-red-50 p-1.5 rounded-md backdrop-blur-sm transition-colors shadow-sm border border-slate-100">
+                                            <Trash2 className="w-3.5 h-3.5" />
                                         </button>
                                     )}
 
                                     {/* Image Preview / File Input */}
-                                    <div className="w-full h-40 bg-slate-50 rounded-xl relative flex flex-col items-center justify-center group overflow-hidden">
+                                    <div className="w-full h-36 sm:h-40 bg-slate-50 rounded-lg sm:rounded-xl relative flex flex-col items-center justify-center group overflow-hidden mt-1">
                                         {img.preview ? (
                                             <>
-                                                {/* eslint-disable-next-line @next/next/no-img-element */}
                                                 <img src={img.preview} alt={`Upload ${index}`} className="w-full h-full object-cover" />
-                                                <label className="absolute inset-0 bg-black/50 text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer font-bold text-xs uppercase tracking-widest backdrop-blur-xs">
+                                                <label className="absolute inset-0 bg-slate-900/60 text-white opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center cursor-pointer font-bold text-xs uppercase tracking-widest backdrop-blur-sm">
                                                     <Upload className="w-6 h-6 mb-2" /> Change Image
                                                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(index, e)} />
                                                 </label>
                                             </>
                                         ) : (
                                             <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer text-slate-400 hover:text-emerald-600 transition-colors">
-                                                <Upload className="w-8 h-8 mb-2" />
-                                                <span className="text-xs font-bold uppercase tracking-widest">Upload Image</span>
+                                                <Upload className="w-7 h-7 sm:w-8 sm:h-8 mb-2 text-slate-300 group-hover:text-emerald-500 transition-colors" />
+                                                <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-slate-400 group-hover:text-emerald-600 transition-colors">Upload Image</span>
                                                 <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileSelect(index, e)} />
                                             </label>
                                         )}
@@ -268,34 +272,54 @@ export default function CharityManagement() {
                     </div>
 
                     {/* Events Management */}
-                    <div className="space-y-6 bg-amber-50/30 p-6 rounded-2xl border border-amber-100/50">
-                        {/* ... (Keep your existing Events Management block exactly the same) ... */}
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-sm font-black uppercase tracking-widest text-amber-800 flex items-center gap-2"><Calendar className="w-4 h-4" /> Upcoming Initiatives</h3>
-                            <button type="button" onClick={addEventField} className="text-amber-700 hover:text-amber-800 text-xs font-bold flex items-center gap-1 uppercase tracking-wider bg-amber-100 px-3 py-1.5 rounded-lg transition-colors"><Plus className="w-3 h-3" /> Add Event</button>
+                    <div className="space-y-4 sm:space-y-6 bg-amber-50/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl border border-amber-100/50">
+
+                        {/* Stacked on mobile, side-by-side on sm+ screens */}
+                        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 pb-2 sm:pb-0 border-b sm:border-0 border-amber-100">
+                            <h3 className="text-sm font-black uppercase tracking-widest text-amber-800 flex items-center gap-2">
+                                <Calendar className="w-4 h-4" /> Upcoming Initiatives
+                            </h3>
+                            <button type="button" onClick={addEventField} className="w-full sm:w-auto justify-center text-amber-700 hover:text-amber-800 text-xs font-bold flex items-center gap-1.5 uppercase tracking-wider bg-amber-100 hover:bg-amber-200 px-4 py-2 rounded-lg transition-colors shadow-sm">
+                                <Plus className="w-3.5 h-3.5" /> Add New Event
+                            </button>
                         </div>
 
-                        {events.length === 0 && <p className="text-sm text-slate-400 font-medium italic">No upcoming events scheduled.</p>}
+                        {events.length === 0 && (
+                            <div className="bg-white/50 border border-amber-100/50 rounded-xl p-6 text-center">
+                                <p className="text-sm text-amber-600/70 font-medium italic">No upcoming events scheduled.</p>
+                            </div>
+                        )}
 
                         <div className="space-y-4">
                             {events.map((ev, index) => (
-                                <div key={index} className="flex flex-col gap-3 bg-white p-4 rounded-xl border border-slate-200 shadow-sm relative group">
-                                    <button type="button" onClick={() => removeEventField(index)} className="absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors">
+                                <div key={index} className="flex flex-col gap-3 bg-white p-4 sm:p-5 rounded-xl border border-slate-200 shadow-sm relative group">
+
+                                    {/* Action Buttons Header for Mobile */}
+                                    <div className="flex justify-between items-center sm:hidden mb-1 border-b border-slate-50 pb-2">
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Event #{index + 1}</span>
+                                        <button type="button" onClick={() => removeEventField(index)} className="text-slate-300 hover:text-red-500 transition-colors bg-slate-50 p-1.5 rounded-md">
+                                            <Trash2 className="w-3.5 h-3.5" />
+                                        </button>
+                                    </div>
+
+                                    {/* Desktop Trash Icon (Hidden on Mobile) */}
+                                    <button type="button" onClick={() => removeEventField(index)} className="hidden sm:block absolute top-4 right-4 text-slate-300 hover:text-red-500 transition-colors bg-white p-1 rounded-md z-10">
                                         <Trash2 className="w-4 h-4" />
                                     </button>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pr-8">
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 sm:pr-8">
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Event Title</label>
-                                            <input type="text" required value={ev.title} onChange={e => { const newEvs = [...events]; newEvs[index].title = e.target.value; setEvents(newEvs); }} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-bold outline-none focus:border-amber-500" placeholder="e.g. Charity Gala" />
+                                            <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Event Title</label>
+                                            <input type="text" required value={ev.title} onChange={e => { const newEvs = [...events]; newEvs[index].title = e.target.value; setEvents(newEvs); }} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-bold outline-none focus:bg-white focus:border-amber-400 transition-colors" placeholder="e.g. Charity Gala" />
                                         </div>
                                         <div>
-                                            <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Date</label>
-                                            <input type="date" required value={ev.event_date} onChange={e => { const newEvs = [...events]; newEvs[index].event_date = e.target.value; setEvents(newEvs); }} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-bold outline-none focus:border-amber-500 text-slate-700" />
+                                            <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Date</label>
+                                            <input type="date" required value={ev.event_date} onChange={e => { const newEvs = [...events]; newEvs[index].event_date = e.target.value; setEvents(newEvs); }} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-bold outline-none focus:bg-white focus:border-amber-400 text-slate-700 transition-colors" />
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wide">Description (Optional)</label>
-                                        <input type="text" value={ev.description} onChange={e => { const newEvs = [...events]; newEvs[index].description = e.target.value; setEvents(newEvs); }} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:border-amber-500" placeholder="Short detail about the event..." />
+                                        <label className="block text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wide">Description (Optional)</label>
+                                        <input type="text" value={ev.description} onChange={e => { const newEvs = [...events]; newEvs[index].description = e.target.value; setEvents(newEvs); }} className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2.5 text-sm font-medium outline-none focus:bg-white focus:border-amber-400 transition-colors" placeholder="Short detail about the event..." />
                                     </div>
                                 </div>
                             ))}
@@ -303,16 +327,16 @@ export default function CharityManagement() {
                     </div>
 
                     {/* Actions */}
-                    <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-slate-100">
-                        <button type="submit" disabled={isProcessing} className="flex-1 sm:flex-none bg-[#0A3622] hover:bg-[#062416] text-[#FFDE59] font-black py-4 px-8 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 text-center flex items-center justify-center gap-2">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4 border-t border-slate-100">
+                        <button type="submit" disabled={isProcessing} className="flex-1 bg-[#0A3622] hover:bg-[#062416] text-[#FFDE59] font-black py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl transition-all shadow-md hover:shadow-lg disabled:opacity-50 text-center flex items-center justify-center gap-2 text-sm sm:text-base">
                             {isProcessing ? (
-                                <><span className="w-4 h-4 border-2 border-[#FFDE59]/30 border-t-[#FFDE59] rounded-full animate-spin"></span> Uploading & Saving...</>
+                                <><span className="w-3.5 h-3.5 sm:w-4 sm:h-4 border-2 border-[#FFDE59]/30 border-t-[#FFDE59] rounded-full animate-spin"></span> Processing...</>
                             ) : (
                                 editingId ? 'Update Charity Record' : 'Publish Charity to Directory'
                             )}
                         </button>
                         {editingId && (
-                            <button type="button" onClick={resetForm} className="flex-1 sm:flex-none bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-bold py-4 px-8 rounded-xl transition-all text-center">
+                            <button type="button" onClick={resetForm} className="flex-1 sm:flex-none bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:text-slate-900 font-bold py-3.5 sm:py-4 px-6 sm:px-8 rounded-xl transition-all text-center text-sm sm:text-base">
                                 Cancel Edit
                             </button>
                         )}

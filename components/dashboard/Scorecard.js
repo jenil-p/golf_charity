@@ -62,7 +62,7 @@ export default function Scorecard({
                         ))
                     )}
                 </div>
-                <div className='mt-10 text-sm text-slate-400'>R1 represents your mose recent score</div>
+                <div className='mt-10 text-sm text-slate-400'>R1 represents your most recent score</div>
             </div>
         </div>
     );
