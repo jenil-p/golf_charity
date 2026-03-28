@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { supabase } from '../../lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../contexts/AuthContext';
 import { ChevronDown, Menu } from 'lucide-react';
@@ -15,7 +14,6 @@ import CharityManagement from '../../components/admin/CharityManagement';
 import Loading from '@/components/ui/Loading';
 
 export default function AdminDashboard() {
-  // const { session, isAuthLoading } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -26,7 +24,7 @@ export default function AdminDashboard() {
   const { session, isAdmin: isAdminFromContext, isAuthLoading } = useAuth();
 
   useEffect(() => {
-    if (isAuthLoading) return;
+    if (isAuthLoading || isAdminLoading) return;
 
     if (!session) {
       router.push('/login');
@@ -44,7 +42,7 @@ export default function AdminDashboard() {
     setIsAdmin(true);
     setLoading(false);
 
-  }, [session, isAuthLoading, isAdminFromContext, router]);
+  }, [session, isAuthLoading, isAdminLoading, isAdminFromContext, router]);
 
   // Handle clicking outside the mobile menu to close it
   useEffect(() => {
