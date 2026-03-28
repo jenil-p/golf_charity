@@ -21,7 +21,7 @@ export default function AdminDashboard() {
   const menuRef = useRef(null); // Ref for click-outside detection
   const router = useRouter();
 
-  const { session, isAdmin: isAdminFromContext, isAuthLoading } = useAuth();
+  const { session, isAdmin: isAdminFromContext, isAuthLoading, isAdminLoading  } = useAuth();
 
   useEffect(() => {
     if (isAuthLoading || isAdminLoading) return;
