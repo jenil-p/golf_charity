@@ -13,6 +13,36 @@ export const AuthProvider = ({ children }) => {
 
     useEffect(() => {
 
+        // get session manually on first load
+        const getInitialSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+
+            setSession(session);
+
+            if (session?.user) {
+                try {
+                    const { data: profile } = await supabase
+                        .from('profiles')
+                        .select('role')
+                        .eq('id', session.user.id)
+                        .single();
+
+                    setIsAdmin(profile?.role === 'admin');
+                } catch (error) {
+                    console.error('Profile fetch error:', error);
+                    setIsAdmin(false);
+                }
+            } else {
+                setIsAdmin(false);
+            }
+
+            setIsAuthLoading(false);
+            setIsAdminLoading(false);
+        };
+
+        getInitialSession();
+
+        // keep listener
         const { data: { subscription } } = supabase.auth.onAuthStateChange(
             async (event, newSession) => {
                 setSession(newSession);
