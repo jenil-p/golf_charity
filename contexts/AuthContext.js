@@ -9,7 +9,7 @@ export const AuthProvider = ({ children }) => {
     const [session, setSession] = useState(null);
     const [isAdmin, setIsAdmin] = useState(false);
     const [isAuthLoading, setIsAuthLoading] = useState(true);
-    const [isAdminLoading, setIsAdminLoading] = useState(true); 
+    const [isAdminLoading, setIsAdminLoading] = useState(true);
 
     useEffect(() => {
         const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
                     .eq('id', newSession.user.id)
                     .single();
                 setIsAdmin(data?.role === 'admin');
-                setIsAdminLoading(false); 
+                setIsAdminLoading(false);
             } else {
                 setIsAdmin(false);
                 setIsAdminLoading(false);

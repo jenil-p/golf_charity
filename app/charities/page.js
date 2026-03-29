@@ -23,21 +23,31 @@ export default function CharitiesDirectory() {
     useEffect(() => {
         async function loadData() {
             if (isAuthLoading) return;
-            if (!session) return router.push('/login');
 
-            const [profileRes, charitiesRes] = await Promise.all([
-                supabase.from('profiles').select('*').eq('id', session.user.id).single(),
-                supabase.from('charities').select(`
+            if (!session) {
+                router.push('/login');
+                setLoading(false);
+                return;
+            }
+
+            try {
+                const [profileRes, charitiesRes] = await Promise.all([
+                    supabase.from('profiles').select('*').eq('id', session.user.id).single(),
+                    supabase.from('charities').select(`
                     *,
                     charity_images ( image_url, is_primary ),
                     charity_events ( title, event_date, description )
                 `).eq('is_active', true).order('name')
-            ]);
+                ]);
 
-            if (profileRes.data) setProfile(profileRes.data);
-            if (charitiesRes.data) setCharities(charitiesRes.data);
+                if (profileRes.data) setProfile(profileRes.data);
+                if (charitiesRes.data) setCharities(charitiesRes.data);
 
-            setLoading(false);
+            } catch (err) {
+                console.error('Charities fetch error:', err);
+            } finally {
+                setLoading(false);
+            }
         }
         loadData();
     }, [router, session, isAuthLoading]);
@@ -77,7 +87,7 @@ export default function CharitiesDirectory() {
 
     if (isAuthLoading || loading) {
         return (
-            <Loading message="Loading helpable hands that we know..."/>
+            <Loading message="Loading helpable hands that we know..." />
         );
     }
 

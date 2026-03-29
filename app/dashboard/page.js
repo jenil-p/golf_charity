@@ -33,45 +33,51 @@ export default function Dashboard() {
 
     const fetchDashboardData = async () => {
         if (isAuthLoading) return;
-        
+
         if (!session) {
             router.push('/login');
             setLoading(false);
             return;
         }
 
-        const { data: profileData } = await supabase.from('profiles').select('*').eq('id', session.user.id).single();
+        try {
+            const { data: profileData } = await supabase
+                .from('profiles').select('*').eq('id', session.user.id).single();
+            setProfile(profileData);
 
-        setProfile(profileData);
+            const { count: drawsCount } = await supabase
+                .from('draws').select('*', { count: 'exact', head: true }).eq('status', 'published');
+            const today = new Date();
+            const nextDrawDate = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+                .toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+            setParticipation({ drawsEntered: drawsCount || 0, nextDraw: nextDrawDate });
 
-        const { count: drawsCount } = await supabase.from('draws').select('*', { count: 'exact', head: true }).eq('status', 'published');
-        const today = new Date();
-        const nextDrawDate = new Date(today.getFullYear(), today.getMonth() + 1, 1).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-        setParticipation({ drawsEntered: drawsCount || 0, nextDraw: nextDrawDate });
+            const [subRes, scoresRes, winRes] = await Promise.all([
+                supabase.from('subscriptions').select('*').eq('user_id', session.user.id).single(),
+                supabase.from('golf_scores').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(5),
+                supabase.from('winnings').select('*, draws(draw_month)').eq('user_id', session.user.id).order('created_at', { ascending: false })
+            ]);
 
-        const [subRes, scoresRes, winRes] = await Promise.all([
-            supabase.from('subscriptions').select('*').eq('user_id', session.user.id).single(),
-            supabase.from('golf_scores').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(5),
-            supabase.from('winnings').select('*, draws(draw_month)').eq('user_id', session.user.id).order('created_at', { ascending: false })
-        ]);
+            setSubscription(subRes.data);
+            setScores(scoresRes.data || []);
+            setWinnings(winRes.data || []);
 
-        setSubscription(subRes.data);
-        setScores(scoresRes.data || []);
-        setWinnings(winRes.data || []);
-
-
-        // gate keeping ... 
-        let access = false;
-        if (subRes.data && subRes.data.status === 'active') {
-            const expiryDate = new Date(subRes.data.current_period_end);
-            if (today < expiryDate) {
-                access = true;
-            } else {
-                supabase.from('subscriptions').update({ status: 'expired' }).eq('id', subRes.data.id).then();
+            let access = false;
+            if (subRes.data?.status === 'active') {
+                const expiryDate = new Date(subRes.data.current_period_end);
+                if (new Date() < expiryDate) {
+                    access = true;
+                } else {
+                    supabase.from('subscriptions').update({ status: 'expired' }).eq('id', subRes.data.id).then();
+                }
             }
+            setHasAccess(access);
+
+        } catch (err) {
+            console.error('Dashboard fetch error:', err);
+        } finally {
+            setLoading(false);
         }
-        setHasAccess(access);
-        setLoading(false);
     };
 
     useEffect(() => { fetchDashboardData(); }, [router, session, isAuthLoading]);
