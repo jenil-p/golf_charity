@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '../../../lib/supabase';
+import { supabaseAdmin } from '@/lib/supabaseAdmin.js';
+import { getSupabaseServer } from '@/lib/supabaseServer.js';
 
 
 // to add the scores...
@@ -13,7 +14,7 @@ export async function POST(request) {
         }
 
         // user's curretn 5 golf scores in assending order of time
-        const { data: currentScores, error: fetchError } = await supabase
+        const { data: currentScores, error: fetchError } = await supabaseAdmin
             .from('golf_scores')
             .select('id, played_date')
             .eq('user_id', userId)
@@ -21,11 +22,11 @@ export async function POST(request) {
 
         if (fetchError) throw fetchError;
 
-        
+
         if (currentScores && currentScores.length >= 5) {
             const oldestScoreId = currentScores[0].id;
 
-            const { error: deleteError } = await supabase
+            const { error: deleteError } = await supabaseAdmin
                 .from('golf_scores')
                 .delete()
                 .eq('id', oldestScoreId);
@@ -33,7 +34,7 @@ export async function POST(request) {
             if (deleteError) throw deleteError;
         }
 
-        const { error: insertError } = await supabase
+        const { error: insertError } = await supabaseAdmin
             .from('golf_scores')
             .insert([
                 {
@@ -54,23 +55,31 @@ export async function POST(request) {
 }
 
 export async function PUT(request) {
-  try {
-    const { scoreId, newScore, userId } = await request.json();
+    try {
+        const { scoreId, newScore } = await request.json();
 
-    if (newScore < 1 || newScore > 45) {
-      return NextResponse.json({ error: "Score must be between 1 and 45" }, { status: 400 });
+        const supabaseServer = getSupabaseServer();
+
+        const { data: { user } } = await supabaseServer.auth.getUser();
+
+        if (!user) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        if (newScore < 1 || newScore > 45) {
+            return NextResponse.json({ error: "Score must be between 1 and 45" }, { status: 400 });
+        }
+
+        // Verify the score belongs to the user before updating
+        const { error } = await supabaseAdmin
+            .from('golf_scores')
+            .update({ score: parseInt(newScore) })
+            .eq('id', scoreId)
+            .eq('user_id', user.id);
+
+        if (error) throw error;
+        return NextResponse.json({ success: true });
+    } catch (error) {
+        return NextResponse.json({ error: "Failed to update score" }, { status: 500 });
     }
-
-    // Verify the score belongs to the user before updating
-    const { error } = await supabase
-      .from('golf_scores')
-      .update({ score: parseInt(newScore) })
-      .eq('id', scoreId)
-      .eq('user_id', userId);
-
-    if (error) throw error;
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    return NextResponse.json({ error: "Failed to update score" }, { status: 500 });
-  }
 }
