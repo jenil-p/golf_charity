@@ -12,51 +12,32 @@ export const AuthProvider = ({ children }) => {
     const [isAdminLoading, setIsAdminLoading] = useState(true);
 
     useEffect(() => {
-        const initializeAuth = async () => {
-            try {
-                // Check local storage for session
-                const { data: { session: initialSession } } = await supabase.auth.getSession();
-                setSession(initialSession);
 
-                if (initialSession?.user) {
-                    // If user exists, fetch their role right away
-                    const { data: profile } = await supabase
-                        .from('profiles')
-                        .select('role')
-                        .eq('id', initialSession.user.id)
-                        .single();
+        const { data: { subscription } } = supabase.auth.onAuthStateChange(
+            async (event, newSession) => {
+                setSession(newSession);
 
-                    setIsAdmin(profile?.role === 'admin');
+                if (newSession?.user) {
+                    try {
+                        const { data: profile } = await supabase
+                            .from('profiles')
+                            .select('role')
+                            .eq('id', newSession.user.id)
+                            .single();
+                        setIsAdmin(profile?.role === 'admin');
+                    } catch (error) {
+                        console.error('Profile fetch error:', error);
+                        setIsAdmin(false);
+                    }
+                } else {
+                    setIsAdmin(false);
                 }
-            } catch (error) {
-                console.error("Auth init error:", error);
-            } finally {
-                // Guarantee loading ends so the Guard can proceed
+
+                // Only mark loading as done AFTER the auth state is fully resolved
                 setIsAuthLoading(false);
                 setIsAdminLoading(false);
             }
-        };
-
-        initializeAuth();
-
-        // Set up the listener for future events (login/logout)
-        const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-            setSession(newSession);
-
-            if (newSession?.user) {
-                const { data: profile } = await supabase
-                    .from('profiles')
-                    .select('role')
-                    .eq('id', newSession.user.id)
-                    .single();
-                setIsAdmin(profile?.role === 'admin');
-            } else {
-                setIsAdmin(false);
-            }
-
-            setIsAuthLoading(false);
-            setIsAdminLoading(false);
-        });
+        );
 
         return () => subscription.unsubscribe();
     }, []);
