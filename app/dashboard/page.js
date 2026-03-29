@@ -17,6 +17,7 @@ import Loading from '@/components/ui/Loading';
 export default function Dashboard() {
     const { session, isAuthLoading } = useAuth();
     const [loading, setLoading] = useState(true);
+    const [refetchTrigger, setRefetchTrigger] = useState(0);
     const [profile, setProfile] = useState(null);
     const [subscription, setSubscription] = useState(null);
     const [hasAccess, setHasAccess] = useState(false); // this will serve as gate keeper ;)
@@ -30,48 +31,51 @@ export default function Dashboard() {
     const [participation, setParticipation] = useState({ drawsEntered: 0, nextDraw: '' });
     const [uploadingId, setUploadingId] = useState(null);
     const router = useRouter();
-    
+
+
+    const refetch = () => setRefetchTrigger(n => n + 1);
+
     useEffect(() => {
         const ac = new AbortController();
-        
+
         const fetchDashboardData = async () => {
             if (isAuthLoading) return;
-    
+
             if (!session) {
                 router.push('/login');
                 setLoading(false);
                 return;
             }
-    
+
             try {
                 const { data: profileData } = await supabase
                     .from('profiles').select('*').eq('id', session.user.id).single();
-    
+
                 if (ac.signal.aborted) return;
                 setProfile(profileData);
-    
+
                 const { count: drawsCount } = await supabase
                     .from('draws').select('*', { count: 'exact', head: true }).eq('status', 'published');
-    
+
                 const today = new Date();
                 const nextDrawDate = new Date(today.getFullYear(), today.getMonth() + 1, 1)
                     .toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-    
+
                 if (ac.signal.aborted) return;
                 setParticipation({ drawsEntered: drawsCount || 0, nextDraw: nextDrawDate });
-    
+
                 const [subRes, scoresRes, winRes] = await Promise.all([
                     supabase.from('subscriptions').select('*').eq('user_id', session.user.id).single(),
                     supabase.from('golf_scores').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(5),
                     supabase.from('winnings').select('*, draws(draw_month)').eq('user_id', session.user.id).order('created_at', { ascending: false })
                 ]);
-    
+
                 if (ac.signal.aborted) return;
-    
+
                 setSubscription(subRes.data);
                 setScores(scoresRes.data || []);
                 setWinnings(winRes.data || []);
-    
+
                 let access = false;
                 if (subRes.data?.status === 'active') {
                     const expiryDate = new Date(subRes.data.current_period_end);
@@ -82,7 +86,7 @@ export default function Dashboard() {
                     }
                 }
                 setHasAccess(access);
-    
+
             } catch (err) {
                 if (!ac.signal.aborted) console.error('Dashboard fetch error:', err);
             } finally {
@@ -91,10 +95,9 @@ export default function Dashboard() {
         };
 
         fetchDashboardData();
-
         return () => ac.abort();
 
-    }, [router, session, isAuthLoading]);
+    }, [router, session, isAuthLoading, refetchTrigger]);
 
     const handleScoreSubmit = async (e) => {
         e.preventDefault();
@@ -102,7 +105,7 @@ export default function Dashboard() {
         try {
             await fetch('/api/scores', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ score: parseInt(newScore), userId: profile.id }) });
             setNewScore('');
-            fetchDashboardData();
+            refetch();
             setScoreMessage({ text: 'Score Logged!', type: 'success' });
         } catch (e) { setScoreMessage({ text: 'Error', type: 'error' }); }
         finally { setIsProcessing(false); }
@@ -111,7 +114,7 @@ export default function Dashboard() {
     const handleEditScore = async (scoreId) => {
         await fetch('/api/scores', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scoreId, newScore: parseInt(editScoreValue), userId: profile.id }) });
         setEditingScoreId(null);
-        fetchDashboardData();
+        refetch();
     };
 
     const handleFileUpload = async (e, winningId) => {
@@ -121,7 +124,7 @@ export default function Dashboard() {
         await supabase.storage.from('winner-proofs').upload(filePath, file);
         const { data: { publicUrl } } = supabase.storage.from('winner-proofs').getPublicUrl(filePath);
         await supabase.from('winnings').update({ proof_image_url: publicUrl }).eq('id', winningId);
-        fetchDashboardData();
+        refetch();
         setUploadingId(null);
     };
 
