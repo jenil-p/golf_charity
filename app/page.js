@@ -71,8 +71,6 @@ export default function Home() {
     }
   ];
 
-  if (isAuthLoading) return <div className="min-h-screen bg-[#F9F8F4]"></div>;
-
   return (
     <div className="min-h-screen bg-[#F9F8F4] text-slate-900 font-sans selection:bg-[#FFD166]/40 overflow-hidden">
 
@@ -96,9 +94,16 @@ export default function Home() {
             From environmental cleanups to medical emergencies. Turn your weekend Stableford scores into life-changing charity donations and monthly rewards.
           </motion.p>
           <motion.div variants={fadeUp} className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button onClick={() => router.push(session ? '/dashboard' : '/login')} className="w-full sm:w-auto px-8 py-4 bg-[#0A3622] hover:bg-[#062416] text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-lg shadow-lg">
-              {session ? 'Go to Dashboard' : 'Start an Impact Fund'}
-            </button>
+            <div className="flex gap-4">
+              {isAuthLoading ? (
+                <div className="w-32 h-12 bg-slate-200 animate-pulse rounded-2xl" />
+              ) : (
+                <button onClick={() => router.push(session ? '/dashboard' : '/login')} className="w-full sm:w-auto px-8 py-4 bg-[#0A3622] hover:bg-[#062416] text-white font-bold rounded-2xl transition-all flex items-center justify-center gap-2 text-lg shadow-lg">
+                  {session ? 'Go to Dashboard' : 'Start an Impact Fund'}
+                </button>
+              )}
+            </div>
+
             {!session && (
               <button onClick={() => { document.getElementById('how-it-works').scrollIntoView({ behavior: 'smooth' }); }} className="w-full sm:w-auto px-8 py-4 bg-transparent border-2 border-[#0A3622] text-[#0A3622] hover:bg-[#0A3622]/10 font-bold rounded-2xl transition-all flex items-center justify-center text-lg">
                 Learn how it works
