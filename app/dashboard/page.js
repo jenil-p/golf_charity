@@ -30,65 +30,65 @@ export default function Dashboard() {
     const [participation, setParticipation] = useState({ drawsEntered: 0, nextDraw: '' });
     const [uploadingId, setUploadingId] = useState(null);
     const router = useRouter();
-
-    const fetchDashboardData = async () => {
-        if (isAuthLoading) return;
-
-        if (!session) {
-            router.push('/login');
-            setLoading(false);
-            return;
-        }
-
-        try {
-            const { data: profileData } = await supabase
-                .from('profiles').select('*').eq('id', session.user.id).single();
-
-            if (ac.signal.aborted) return;
-            setProfile(profileData);
-
-            const { count: drawsCount } = await supabase
-                .from('draws').select('*', { count: 'exact', head: true }).eq('status', 'published');
-
-            const today = new Date();
-            const nextDrawDate = new Date(today.getFullYear(), today.getMonth() + 1, 1)
-                .toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-
-            if (ac.signal.aborted) return;
-            setParticipation({ drawsEntered: drawsCount || 0, nextDraw: nextDrawDate });
-
-            const [subRes, scoresRes, winRes] = await Promise.all([
-                supabase.from('subscriptions').select('*').eq('user_id', session.user.id).single(),
-                supabase.from('golf_scores').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(5),
-                supabase.from('winnings').select('*, draws(draw_month)').eq('user_id', session.user.id).order('created_at', { ascending: false })
-            ]);
-
-            if (ac.signal.aborted) return;
-
-            setSubscription(subRes.data);
-            setScores(scoresRes.data || []);
-            setWinnings(winRes.data || []);
-
-            let access = false;
-            if (subRes.data?.status === 'active') {
-                const expiryDate = new Date(subRes.data.current_period_end);
-                if (new Date() < expiryDate) {
-                    access = true;
-                } else {
-                    supabase.from('subscriptions').update({ status: 'expired' }).eq('id', subRes.data.id).then();
-                }
-            }
-            setHasAccess(access);
-
-        } catch (err) {
-            if (!ac.signal.aborted) console.error('Dashboard fetch error:', err);
-        } finally {
-            if (!ac.signal.aborted) setLoading(false);
-        }
-    };
-
+    
     useEffect(() => {
         const ac = new AbortController();
+        
+        const fetchDashboardData = async () => {
+            if (isAuthLoading) return;
+    
+            if (!session) {
+                router.push('/login');
+                setLoading(false);
+                return;
+            }
+    
+            try {
+                const { data: profileData } = await supabase
+                    .from('profiles').select('*').eq('id', session.user.id).single();
+    
+                if (ac.signal.aborted) return;
+                setProfile(profileData);
+    
+                const { count: drawsCount } = await supabase
+                    .from('draws').select('*', { count: 'exact', head: true }).eq('status', 'published');
+    
+                const today = new Date();
+                const nextDrawDate = new Date(today.getFullYear(), today.getMonth() + 1, 1)
+                    .toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+    
+                if (ac.signal.aborted) return;
+                setParticipation({ drawsEntered: drawsCount || 0, nextDraw: nextDrawDate });
+    
+                const [subRes, scoresRes, winRes] = await Promise.all([
+                    supabase.from('subscriptions').select('*').eq('user_id', session.user.id).single(),
+                    supabase.from('golf_scores').select('*').eq('user_id', session.user.id).order('created_at', { ascending: false }).limit(5),
+                    supabase.from('winnings').select('*, draws(draw_month)').eq('user_id', session.user.id).order('created_at', { ascending: false })
+                ]);
+    
+                if (ac.signal.aborted) return;
+    
+                setSubscription(subRes.data);
+                setScores(scoresRes.data || []);
+                setWinnings(winRes.data || []);
+    
+                let access = false;
+                if (subRes.data?.status === 'active') {
+                    const expiryDate = new Date(subRes.data.current_period_end);
+                    if (new Date() < expiryDate) {
+                        access = true;
+                    } else {
+                        supabase.from('subscriptions').update({ status: 'expired' }).eq('id', subRes.data.id).then();
+                    }
+                }
+                setHasAccess(access);
+    
+            } catch (err) {
+                if (!ac.signal.aborted) console.error('Dashboard fetch error:', err);
+            } finally {
+                if (!ac.signal.aborted) setLoading(false);
+            }
+        };
 
         fetchDashboardData();
 
