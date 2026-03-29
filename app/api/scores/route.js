@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseAdmin.js';
-import { getSupabaseServer } from '@/lib/supabaseServer.js';
 
 
 // to add the scores...
 export async function POST(request) {
     try {
         const { score, userId } = await request.json();
+
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         // score must be b/w 1-45
         if (score < 1 || score > 45) {
@@ -56,13 +59,9 @@ export async function POST(request) {
 
 export async function PUT(request) {
     try {
-        const { scoreId, newScore } = await request.json();
+        const { scoreId, newScore, userId } = await request.json();
 
-        const supabaseServer = getSupabaseServer();
-
-        const { data: { user } } = await supabaseServer.auth.getUser();
-
-        if (!user) {
+        if (!userId) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
         }
 
@@ -75,7 +74,7 @@ export async function PUT(request) {
             .from('golf_scores')
             .update({ score: parseInt(newScore) })
             .eq('id', scoreId)
-            .eq('user_id', user.id);
+            .eq('user_id', userId);
 
         if (error) throw error;
         return NextResponse.json({ success: true });

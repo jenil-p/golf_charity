@@ -1,14 +1,13 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin.js';
-import { getSupabaseServer } from '@/lib/supabaseServer.js';
+import { supabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function PUT(request) {
     try {
-        const { charityId, percentage } = await request.json();
-        
-        const supabaseServer = getSupabaseServer();
+        const { charityId, percentage, userId } = await request.json();
 
-        const { data: { user } } = await supabaseServer.auth.getUser();
+        if (!userId) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
 
         // min contri is to be 10 percentage... and maximum obviously is 100
         if (percentage !== undefined && (percentage < 10 || percentage > 100)) {
@@ -22,7 +21,7 @@ export async function PUT(request) {
         const { error } = await supabaseAdmin
             .from('profiles')
             .update(updateData)
-            .eq('id', user.id);
+            .eq('id', userId);
 
         if (error) throw error;
 
