@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { supabase } from '../../lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { Menu, X, Heart, LayoutDashboard, ShieldCheck, LogOut, LogIn, Leaf } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -23,6 +23,7 @@ export default function Navbar() {
     }, []);
 
     const handleLogout = async () => {
+        const supabase = getSupabaseClient();
         await supabase.auth.signOut();
         setMobileMenuOpen(false);
         router.push('/login');

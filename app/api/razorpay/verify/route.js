@@ -1,14 +1,10 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { createClient } from '@supabase/supabase-js';
-
-// We need a server-side Supabase client here that bypasses RLS to update the DB
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY; // We'll add this next!
-const supabase = createClient(supabaseUrl, supabaseServiceKey);
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function POST(request) {
     try {
+        const supabase = getSupabaseAdmin();
         const body = await request.json();
         const {
             razorpay_payment_id,

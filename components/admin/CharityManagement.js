@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { Plus, Trash2, Image as ImageIcon, Calendar, Check, Upload } from 'lucide-react';
 
 import Loading from '../ui/Loading';
@@ -20,6 +20,7 @@ export default function CharityManagement() {
     const [events, setEvents] = useState([]);
 
     const fetchCharities = async () => {
+        const supabase = getSupabaseClient();
         const { data, error } = await supabase
             .from('charities')
             .select(`
@@ -66,6 +67,7 @@ export default function CharityManagement() {
 
     // --- Master Submit ---
     const handleSubmit = async (e) => {
+        const supabase = getSupabaseClient();
         e.preventDefault();
         setIsProcessing(true);
         try {

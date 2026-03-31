@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import CharityCard from '../../components/charities/CharityCard';
 import { useAuth } from '../../contexts/AuthContext';
@@ -23,13 +23,14 @@ export default function CharitiesDirectory() {
     useEffect(() => {
         async function loadData() {
             if (isAuthLoading) return;
-
+            
             if (!session) {
                 router.push('/login');
                 setLoading(false);
                 return;
             }
-
+            const supabase = getSupabaseClient();
+            
             try {
                 const [profileRes, charitiesRes] = await Promise.all([
                     supabase.from('profiles').select('*').eq('id', session.user.id).single(),

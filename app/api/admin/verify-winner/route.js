@@ -1,13 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.SUPABASE_SERVICE_ROLE_KEY
-);
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function PATCH(request) {
     try {
+        const supabase = getSupabaseAdmin();
         const { winningId, newStatus } = await request.json();
 
         // Validate the status against our database constraints

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 
 import Loading from '../ui/Loading';
 
@@ -16,6 +16,7 @@ export default function ReportsAndUsers() {
     const [isUpdating, setIsUpdating] = useState(false);
 
     const fetchData = async () => {
+        const supabase = getSupabaseClient();
         try {
             // Fetch Profiles
             const { data: profilesData, error: profileError } = await supabase

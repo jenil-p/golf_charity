@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '@/lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
@@ -40,12 +40,13 @@ export default function Dashboard() {
 
         const fetchDashboardData = async () => {
             if (isAuthLoading) return;
-
+            
             if (!session) {
                 router.push('/login');
                 setLoading(false);
                 return;
             }
+            const supabase = getSupabaseClient();
 
             try {
                 const { data: profileData } = await supabase
@@ -118,6 +119,7 @@ export default function Dashboard() {
     };
 
     const handleFileUpload = async (e, winningId) => {
+        const supabase = getSupabaseClient();
         const file = e.target.files[0];
         setUploadingId(winningId);
         const filePath = `${profile.id}-${winningId}-${Math.random()}`;

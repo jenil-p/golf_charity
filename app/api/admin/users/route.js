@@ -1,10 +1,9 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function PUT(request) {
     try {
+        const supabase = getSupabaseAdmin();
         const { action, payload, userId } = await request.json();
 
         if (!userId) {
@@ -28,6 +27,7 @@ export async function PUT(request) {
 // Fetch a specific user's detailed scores for the admin modal
 export async function POST(request) {
     try {
+        const supabase = getSupabaseAdmin();
         const { userId } = await request.json();
         const { data } = await supabase.from('golf_scores').select('*').eq('user_id', userId).order('played_date', { ascending: false });
         return NextResponse.json({ scores: data || [] });

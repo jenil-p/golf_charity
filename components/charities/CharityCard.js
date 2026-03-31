@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Calendar, CheckCircle2, HeartHandshake, ChevronRight, ChevronLeft } from 'lucide-react';
-import { FaChevronRight } from "react-icons/fa6";
+import { getSupabaseClient } from '../../lib/supabase';
 
 
 export default function CharityCard({
@@ -50,7 +50,7 @@ export default function CharityCard({
             });
             if (!scriptLoaded) throw new Error("Razorpay SDK failed to load");
 
-            const { supabase } = await import('../../lib/supabase');
+            const supabase = getSupabaseClient();
             const { data: { session } } = await supabase.auth.getSession();
 
             const res = await fetch('/api/razorpay/donation', {

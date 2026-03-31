@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabaseAdmin } from '@/lib/supabaseAdmin';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
 
 export async function PUT(request) {
     try {
+        const supabase = getSupabaseAdmin();
         const { charityId, percentage, userId } = await request.json();
 
         if (!userId) {
@@ -18,7 +19,7 @@ export async function PUT(request) {
         if (charityId !== undefined) updateData.selected_charity_id = charityId;
         if (percentage !== undefined) updateData.charity_percentage = parseInt(percentage);
 
-        const { error } = await supabaseAdmin
+        const { error } = await supabase
             .from('profiles')
             .update(updateData)
             .eq('id', userId);

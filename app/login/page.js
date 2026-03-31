@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { supabase } from '../../lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Mail, Lock, User, Heart, ChevronRight, AlertCircle, CheckCircle2, Leaf, Target } from 'lucide-react';
@@ -27,6 +27,7 @@ export default function Login() {
 
     // Check Role if Already Logged In
     useEffect(() => {
+        const supabase = getSupabaseClient();
         async function checkExistingSession() {
             if (!isAuthLoading && session) {
                 setIsRouting(true);
@@ -48,6 +49,7 @@ export default function Login() {
 
     // Fetch Charities for the Sign-Up dropdown
     useEffect(() => {
+        const supabase = getSupabaseClient();
         async function fetchCharities() {
             const { data } = await supabase.from('charities').select('id, name').eq('is_active', true);
             if (data) {
@@ -62,7 +64,8 @@ export default function Login() {
         e.preventDefault();
         setLoading(true);
         setMessage({ text: '', type: '' });
-
+        
+        const supabase = getSupabaseClient();
         try {
             if (isSignUp) {
                 const { data, error } = await supabase.auth.signUp({

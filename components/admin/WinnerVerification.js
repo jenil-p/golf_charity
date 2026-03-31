@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { supabase } from '../../lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 
 import Loading from '../ui/Loading';
 
@@ -11,6 +11,7 @@ export default function WinnerVerification() {
     const [processingId, setProcessingId] = useState(null);
 
     const fetchWinnings = async () => {
+        const supabase = getSupabaseClient();
         const { data, error } = await supabase
             .from('winnings')
             .select(`*, profiles ( full_name ), draws ( draw_month )`)

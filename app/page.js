@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { supabase } from '../lib/supabase';
+import { getSupabaseClient } from '@/lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Target,
@@ -23,6 +23,7 @@ export default function Home() {
   const [featuredCharities, setFeaturedCharities] = useState([]);
 
   useEffect(() => {
+    const supabase = getSupabaseClient();
     async function fetchFeaturedCharities() {
       // Fetch the 3 most recently added active charities
       const { data } = await supabase
