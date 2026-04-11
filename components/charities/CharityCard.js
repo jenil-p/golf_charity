@@ -34,8 +34,18 @@ export default function CharityCard({
 
 
     // events on the charity...
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
     const events = charity.charity_events || [];
-    const sortedEvents = [...events].sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
+
+    const sortedEvents = events
+        .filter(event => {
+            const eventDate = new Date(event.event_date);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= today;
+        })
+        .sort((a, b) => new Date(a.event_date) - new Date(b.event_date));
 
     const handleIndependentDonation = async () => {
 
